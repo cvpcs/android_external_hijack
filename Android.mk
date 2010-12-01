@@ -1,6 +1,7 @@
 LOCAL_PATH := $(call my-dir)
 
-ifeq ($(TARGET_DEVICE),shadow)
+# we compile hijack if we have hijacked executables
+ifneq ($(BOARD_HIJACK_EXECUTABLES),)
 
 include $(CLEAR_VARS)
 
