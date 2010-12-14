@@ -271,11 +271,6 @@ hijack_log("      returned: %d", result);
 
 hijack_log("  Boot mode detected!");
 
-                // we want to go into recovery mode on next boot if there's a failure
-hijack_log("    mark_file(%s) executing...", RECOVERY_MODE_FILE);
-                result = mark_file(RECOVERY_MODE_FILE);
-hijack_log("      returned: %d", result);
-
 hijack_log("    remount_root(%s, %d) executing...", "/system/bin/hijack", 1);
                 result = remount_root("/system/bin/hijack", 1);
 hijack_log("      returned: %d", result);
