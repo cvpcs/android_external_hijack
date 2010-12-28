@@ -25,8 +25,8 @@ int exec_and_sleepwait(char ** argp, unsigned int seconds)
         sigs[i] = (sig_t)  bsd_signal(i, SIG_IGN);
     }
 
-    sigfillset(&fmask);
-    sigprocmask(SIG_SETMASK, &fmask, NULL);
+//    sigfillset(&fmask);
+//    sigprocmask(SIG_SETMASK, &fmask, NULL);
     do {
         pid = waitpid(pid, (int *)&pstat, WNOHANG);
         if(pid == 0) {
