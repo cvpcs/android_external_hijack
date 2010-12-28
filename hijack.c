@@ -2,7 +2,7 @@
 
 int exec_and_sleepwait(char ** argp, unsigned int seconds)
 {
-    pid_t pid;
+    pid_t pid, cpid;
     sig_t intsave, quitsave;
     sigset_t mask, omask;
     int pstat;
@@ -10,7 +10,7 @@ int exec_and_sleepwait(char ** argp, unsigned int seconds)
     sigemptyset(&mask);
     sigaddset(&mask, SIGCHLD);
     sigprocmask(SIG_BLOCK, &mask, &omask);
-    switch (pid = vfork()) {
+    switch (cpid = vfork()) {
     case -1:            /* error */
         sigprocmask(SIG_SETMASK, &omask, NULL);
         return(-1);
@@ -23,7 +23,7 @@ int exec_and_sleepwait(char ** argp, unsigned int seconds)
     intsave = (sig_t)  bsd_signal(SIGINT, SIG_IGN);
     quitsave = (sig_t) bsd_signal(SIGQUIT, SIG_IGN);
     do {
-        pid = waitpid(pid, (int *)&pstat, WNOHANG);
+        pid = waitpid(cpid, (int *)&pstat, WNOHANG);
         if(pid == 0) {
             sleep(seconds);
         } else {
