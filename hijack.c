@@ -52,7 +52,7 @@ int exec_and_sleepwait(char ** argp, unsigned int seconds)
         execve(argp[0], argp, environ);
     _exit(127);
   }
-
+/*
     sig_t *sigs = (sig_t *)malloc(sizeof(sig_t) * NSIG);
     for(i = 0; i < NSIG; i++) {
         sigs[i] = (sig_t)  bsd_signal(i, SIG_IGN);
@@ -72,14 +72,15 @@ int exec_and_sleepwait(char ** argp, unsigned int seconds)
             hijack_log("  time to break the loop");
             break;
         }
-    } while(1);
+    } while(1);*/
     sigprocmask(SIG_SETMASK, &omask, NULL);
-
+/*
     for(i = 0 ; i < NSIG; i++) {
         (void)bsd_signal(i, sigs[i]);
     }
 
-    return (pid == -1 ? -1 : pstat);
+    return (pid == -1 ? -1 : pstat);*/
+    return 0;
 }
 
 int exec_and_wait(char ** argp)
