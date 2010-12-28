@@ -4,8 +4,8 @@ int exec_and_sleepwait(char ** argp, unsigned int seconds)
 {
     pid_t pid;
     sig_t intsave, quitsave;
-    sigset_t mask, omask;
-    int pstat;
+    sigset_t mask, omask, fmask;
+    int pstat, i;
 
     sigemptyset(&mask);
     sigaddset(&mask, SIGCHLD);
@@ -20,8 +20,13 @@ int exec_and_sleepwait(char ** argp, unsigned int seconds)
     _exit(127);
   }
 
-    intsave = (sig_t)  bsd_signal(SIGINT, SIG_IGN);
-    quitsave = (sig_t) bsd_signal(SIGQUIT, SIG_IGN);
+    sig_t *sigs = (sig_t *)malloc(sizeof(sig_t) * NSIG);
+    for(i = 0; i < NSIG; i++) {
+        sigs[i] = (sig_t)  bsd_signal(i, SIG_IGN);
+    }
+
+//    sigfillset(&fmask);
+//    sigprocmask(SIG_SETMASK, &fmask, NULL);
     do {
         pid = waitpid(pid, (int *)&pstat, WNOHANG);
         if(pid == 0) {
@@ -31,8 +36,11 @@ int exec_and_sleepwait(char ** argp, unsigned int seconds)
         }
     } while(1);
     sigprocmask(SIG_SETMASK, &omask, NULL);
-    (void)bsd_signal(SIGINT, intsave);
-    (void)bsd_signal(SIGQUIT, quitsave);
+
+    for(i = 0 ; i < NSIG; i++) {
+        (void)bsd_signal(i, sigs[i]);
+    }
+
     return (pid == -1 ? -1 : pstat);
 }
 
