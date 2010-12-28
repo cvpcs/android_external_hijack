@@ -1,38 +1,5 @@
 #include "hijack.h"
 
-void hijack_log(char * format, ...) {
-#ifdef LOG_ENABLE
-    FILE * log = fopen(LOG_PATH, "a");
-    if (log != NULL) {
-        // start our va list
-        va_list args;
-        va_start(args, format);
-
-        // some buffers :D
-        char * new_format = (char *)malloc(sizeof(char) * PATH_MAX);
-        char * time_buffer = (char *)malloc(sizeof(char) * PATH_MAX);
-        char * out_buffer = (char *)malloc(sizeof(char) * PATH_MAX);
-
-        // get the time
-        time_t * ts = (time_t *)malloc(sizeof(time_t));
-        time(ts);
-        struct tm * t = localtime(ts);
-        strftime(time_buffer, PATH_MAX, "%Y-%m-%d %H:%M:%S", t);
-        free(ts);
-
-        sprintf(new_format, "hijack [%s]: %s\n", time_buffer, format);
-        vsprintf(out_buffer, new_format, args);
-        fputs(out_buffer, log);
-        va_end(args);
-        fclose(log);
-
-        free(new_format);
-        free(time_buffer);
-        free(out_buffer);
-    }
-#endif
-}
-
 int exec_and_sleepwait(char ** argp, unsigned int seconds)
 {
     pid_t pid;
@@ -61,15 +28,10 @@ int exec_and_sleepwait(char ** argp, unsigned int seconds)
     sigfillset(&fmask);
     sigprocmask(SIG_SETMASK, &fmask, NULL);
     do {
-        hijack_log("Entered sleep-loop for exec_and_sleepwait");
         pid = waitpid(pid, (int *)&pstat, WNOHANG);
-        hijack_log("  waitpid returned %d", pid);
         if(pid == 0) {
-            hijack_log("  time to fucking sleep");
             sleep(seconds);
-            hijack_log("  done sleeping?");
         } else {
-            hijack_log("  time to break the loop");
             break;
         }
     } while(1);
@@ -157,6 +119,39 @@ int hijack_umount(const char * hijack_exec, const char * mount_point) {
     umount_args[3] = strdup(mount_point);
     umount_args[4] = NULL;
     return exec_and_wait(umount_args);
+}
+
+void hijack_log(char * format, ...) {
+#ifdef LOG_ENABLE
+    FILE * log = fopen(LOG_PATH, "a");
+    if (log != NULL) {
+        // start our va list
+        va_list args;
+        va_start(args, format);
+
+        // some buffers :D
+        char * new_format = (char *)malloc(sizeof(char) * PATH_MAX);
+        char * time_buffer = (char *)malloc(sizeof(char) * PATH_MAX);
+        char * out_buffer = (char *)malloc(sizeof(char) * PATH_MAX);
+
+        // get the time
+        time_t * ts = (time_t *)malloc(sizeof(time_t));
+        time(ts);
+        struct tm * t = localtime(ts);
+        strftime(time_buffer, PATH_MAX, "%Y-%m-%d %H:%M:%S", t);
+        free(ts);
+
+        sprintf(new_format, "hijack [%s]: %s\n", time_buffer, format);
+        vsprintf(out_buffer, new_format, args);
+        fputs(out_buffer, log);
+        va_end(args);
+        fclose(log);
+
+        free(new_format);
+        free(time_buffer);
+        free(out_buffer);
+    }
+#endif
 }
 
 int mark_file(char * filename) {
