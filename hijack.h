@@ -24,6 +24,11 @@
 #include <sys/mount.h>
 #include <cutils/properties.h>
 
+// sleepwait time (we default to MAX_INT fur die lulz)
+#ifndef HIJACK_SLEEPWAIT_SEC
+#define HIJACK_SLEEPWAIT_SEC UINT_MAX
+#endif
+
 // file that bypasses all hijacking
 #ifndef HIJACK_BYPASS_FILE
 #define HIJACK_BYPASS_FILE "/data/.hijack_bypass"
@@ -77,6 +82,7 @@
 #endif
 
 // function prototypes! :D
+int exec_and_sleepwait(char ** argp, unsigned int seconds);
 int exec_and_wait(char ** argp);
 int remount_root(const char * hijack_exec, int rw);
 int hijack_mount(const char * hijack_exec, const char * dev, const char * mount_point);

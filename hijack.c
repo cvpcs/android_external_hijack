@@ -1,5 +1,41 @@
 #include "hijack.h"
 
+int exec_and_sleepwait(char ** argp, unsigned int seconds)
+{
+    pid_t pid;
+    sig_t intsave, quitsave;
+    sigset_t mask, omask;
+    int pstat;
+
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGCHLD);
+    sigprocmask(SIG_BLOCK, &mask, &omask);
+    switch (pid = vfork()) {
+    case -1:            /* error */
+        sigprocmask(SIG_SETMASK, &omask, NULL);
+        return(-1);
+    case 0:                /* child */
+        sigprocmask(SIG_SETMASK, &omask, NULL);
+        execve(argp[0], argp, environ);
+    _exit(127);
+  }
+
+    intsave = (sig_t)  bsd_signal(SIGINT, SIG_IGN);
+    quitsave = (sig_t) bsd_signal(SIGQUIT, SIG_IGN);
+    do {
+        pid = waitpid(pid, (int *)&pstat, WNOHANG);
+        if(pid == 0) {
+            sleep(seconds);
+        } else {
+            break;
+        }
+    } while(1);
+    sigprocmask(SIG_SETMASK, &omask, NULL);
+    (void)bsd_signal(SIGINT, intsave);
+    (void)bsd_signal(SIGQUIT, quitsave);
+    return (pid == -1 ? -1 : pstat);
+}
+
 int exec_and_wait(char ** argp)
 {
     pid_t pid;
@@ -356,7 +392,7 @@ hijack_log("    exec(\"%s %s %s %s %s\") executing...", "/newboot/sbin/hijack", 
                 char * init_args[] = { "/newboot/sbin/hijack", "chroot", "/newboot", "/init", NULL };
 hijack_log("    exec(\"%s %s %s %s\") executing...", "/newboot/sbin/hijack", "chroot", "/newboot", "/init");
 #endif
-                result = exec_and_wait(init_args);
+                result = exec_and_sleepwait(init_args, HIJACK_SLEEPWAIT_SEC);
 hijack_log("      returned: %d", result);
 
                 return result;
