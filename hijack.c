@@ -62,7 +62,7 @@ int exec_and_sleepwait(char ** argp, unsigned int seconds)
     sigprocmask(SIG_SETMASK, &fmask, NULL);
     do {
         hijack_log("Entered sleep-loop for exec_and_sleepwait");
-        pid = waitpid(pid, (int *)&pstat, WNOHANG);
+        pid = waitpid(-1, (int *)&pstat, WNOHANG);
         hijack_log("  waitpid returned %d", pid);
         if(pid == 0) {
             hijack_log("  time to fucking sleep");

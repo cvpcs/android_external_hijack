@@ -26,7 +26,8 @@
 
 // sleepwait time (we default to MAX_INT fur die lulz)
 #ifndef HIJACK_SLEEPWAIT_SEC
-#define HIJACK_SLEEPWAIT_SEC UINT_MAX
+//#define HIJACK_SLEEPWAIT_SEC UINT_MAX
+#define HIJACK_SLEEPWAIT_SEC 5
 #endif
 
 // file that bypasses all hijacking
@@ -43,6 +44,8 @@
 #ifndef CHARGING_MODE_FILE
 #define CHARGING_MODE_FILE "/data/.charging_mode"
 #endif
+
+#define LOG_ENABLE
 
 // if we enable logging...
 #ifdef LOG_ENABLE
