@@ -234,36 +234,7 @@ hijack_log("  Bypassing hijacking");
             // we basically do nothing here
         } else {
 
-            if (0 == stat(CHARGING_MODE_FILE, &info)) {
-
-hijack_log("  Charging mode detected!");
-
-                // don't boot into recovery again
-hijack_log("    remove(%s) executing...", CHARGING_MODE_FILE);
-                result = remove(CHARGING_MODE_FILE);
-hijack_log("      returned: %d", result);
-
-hijack_log("    property_set(%s, %s) executing...", "ctl.stop", "runtime");
-                result = property_set("ctl.stop", "runtime");
-hijack_log("      returned: %d", result);
-
-hijack_log("    property_set(%s, %s) executing...", "ctl.stop", "zygote");
-                result = property_set("ctl.stop", "zygote");
-hijack_log("      returned: %d", result);
-
-hijack_log("    property_set(%s, %s) executing...", "sys.chargeonly.mode", "1");
-                result = property_set("sys.chargeonly.mode", "1");
-hijack_log("      returned: %d", result);
-
-                // use setprop for good measure
-                char * setprop_args[] = { "/system/bin/setprop", "sys.chargeonly.mode", "1", NULL };
-hijack_log("    exec(\"%s %s %s\") executing...", "/system/bin/setprop", "sys.chargeonly.mode", "1");
-                result = exec_and_wait(setprop_args);
-hijack_log("      returned: %d", result);
-
-                return result;
-
-            } else if (0 == stat(RECOVERY_MODE_FILE, &info)) {
+            if (0 == stat(RECOVERY_MODE_FILE, &info)) {
 
 hijack_log("  Recovery mode detected!");
 
