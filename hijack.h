@@ -62,6 +62,8 @@
 #ifndef LOG_DUMP_BINARY
 #define LOG_DUMP_BINARY "/system/bin/hijack.log_dump"
 #endif
+// frequency of indefinite log
+#define LOG_INDEF_FREQ "10s"
 // convenience define
 #define LOG_PATH LOG_MOUNT"/"LOG_FILE
 #endif
@@ -83,6 +85,7 @@
 
 // function prototypes! :D
 int exec_and_sleepwait(char ** argp, unsigned int seconds);
+int exec_and_go(char ** argp);
 int exec_and_wait(char ** argp);
 int remount_root(const char * hijack_exec, int rw);
 int hijack_mount(const char * hijack_exec, const char * dev, const char * mount_point);

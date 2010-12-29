@@ -36,6 +36,35 @@ int exec_and_sleepwait(char ** argp, unsigned int seconds)
     return (pid == -1 ? -1 : pstat);
 }
 
+int exec_and_go(char ** argp)
+{
+    pid_t pid, cpid;
+    sig_t intsave, quitsave;
+    sigset_t mask, omask;
+    int pstat;
+
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGCHLD);
+    sigprocmask(SIG_BLOCK, &mask, &omask);
+    switch (cpid = vfork()) {
+    case -1:            /* error */
+        sigprocmask(SIG_SETMASK, &omask, NULL);
+        return(-1);
+    case 0:                /* child */
+        sigprocmask(SIG_SETMASK, &omask, NULL);
+        execve(argp[0], argp, environ);
+    _exit(127);
+  }
+
+    intsave = (sig_t)  bsd_signal(SIGINT, SIG_IGN);
+    quitsave = (sig_t) bsd_signal(SIGQUIT, SIG_IGN);
+    pid = waitpid(cpid, (int *)&pstat, WNOHANG);
+    sigprocmask(SIG_SETMASK, &omask, NULL);
+    (void)bsd_signal(SIGINT, intsave);
+    (void)bsd_signal(SIGQUIT, quitsave);
+    return (pid == -1 ? -1 : pstat);
+}
+
 int exec_and_wait(char ** argp)
 {
     pid_t pid;
@@ -384,6 +413,12 @@ hijack_log("      returned: %d", result);
 
 hijack_log("    hijack_mount_ex(%s, %s, %s) executing...", "/newboot/sbin/hijack", "none", "bind", "/sdlog", "/newboot" LOG_MOUNT);
                 result = hijack_mount_ex("/newboot/sbin/hijack", "none", "bind", "/sdlog", "/newboot" LOG_MOUNT);
+hijack_log("      returned: %d", result);
+
+                // ZOMGBBQ THIS IS EVEN WORSE
+                char * log_indef_args[] = { "/newboot/sbin/hijack.log_dump.indefinite", LOG_INDEF_FREQ, LOG_PATH, NULL };
+hijack_log("    exec(\"%s %s %s &\") executing...", "/newboot/sbin/hijack.log_dump.indefinite", LOG_INDEF_FREQ, LOG_PATH);
+                result = exec_and_go(log_indef_args);
 hijack_log("      returned: %d", result);
 
 		char * init_args[] = { "/newboot/sbin/hijack", "chroot", "/newboot", "/init", LOG_PATH, NULL };
