@@ -15,7 +15,6 @@ LOCAL_STATIC_LIBRARIES := \
 	libclearsilverregex \
 	libm \
 	libcutils \
-	libc-ext \
 	libc
 
 LOCAL_FORCE_STATIC_EXECUTABLE := true
