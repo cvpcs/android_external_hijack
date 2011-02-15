@@ -61,6 +61,19 @@ endif
 
 include $(BUILD_EXECUTABLE)
 
+define link-hijack-files
+file := $$(TARGET_OUT)/bin/$(1)
+ALL_PREBUILT += $$(file)
+$$(file) : $$(TARGET_OUT)/bin/hijack
+	@echo "Symlink: $$@ -> hijack"
+	@mkdir -p $$(dir $$@)
+	@rm -rf $$@
+	$$(hide) ln -sf hijack $$@
+endef
+
+$(foreach exe,$(BOARD_HIJACK_EXECUTABLES), \
+  $(eval $(call link-hijack-files, $(exe))))
+
 ifeq ($(BOARD_HIJACK_LOG_ENABLE),true)
 include $(CLEAR_VARS)
 LOCAL_MODULE := hijack.log_dump
