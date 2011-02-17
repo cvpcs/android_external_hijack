@@ -307,6 +307,13 @@ hijack_log("      returned: %d", result);
 
 hijack_log("  Boot mode detected!");
 
+#ifdef LOG_ENABLE
+                // since we are in log mode we want to ensure we reboot to recovery in the event of failure
+hijack_log("    mark_file(%s) executing...", RECOVERY_MODE_FILE);
+                result = mark_file(RECOVERY_MODE_FILE);
+hijack_log("      returned: %d", result);
+#endif
+
 hijack_log("    remount_root(%s, %d) executing...", "/system/bin/hijack", 1);
                 result = remount_root("/system/bin/hijack", 1);
 hijack_log("      returned: %d", result);

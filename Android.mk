@@ -75,6 +75,7 @@ $(foreach exe,$(BOARD_HIJACK_EXECUTABLES),$(eval $(call symlink-hijack-files,$(e
 ifeq ($(BOARD_HIJACK_LOG_ENABLE),true)
 include $(CLEAR_VARS)
 LOCAL_MODULE := hijack.log_dump
+LOCAL_MODULE_TAGS := eng
 LOCAL_MODULE_CLASS := EXECUTABLES
 LOCAL_MODULE_PATH := $(TARGET_OUT_EXECUTABLES)
 LOCAL_SRC_FILES := $(LOCAL_MODULE)
