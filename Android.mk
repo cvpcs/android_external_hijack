@@ -1,22 +1,18 @@
 LOCAL_PATH := $(call my-dir)
 
-# we compile hijack if we have hijacked executables
-ifneq ($(BOARD_HIJACK_EXECUTABLES),)
+# we compile hijack
+ifeq ($(BOARD_HIJACK_ENABLE),true)
 
 include $(CLEAR_VARS)
-
 LOCAL_SRC_FILES := hijack.c
-
 LOCAL_MODULE := hijack
 LOCAL_MODULE_TAGS := eng
-
 LOCAL_STATIC_LIBRARIES := \
 	libbusybox \
 	libclearsilverregex \
 	libm \
 	libcutils \
 	libc
-
 LOCAL_FORCE_STATIC_EXECUTABLE := true
 
 ifneq ($(BOARD_HIJACK_UPDATE_BINARY),)
@@ -51,26 +47,11 @@ ifneq ($(BOARD_HIJACK_LOG_DUMP_BINARY),)
 LOCAL_CFLAGS += -DLOG_DUMP_BINARY=\"$(BOARD_HIJACK_LOG_DUMP_BINARY)\"
 endif
 
-ifneq ($(BOARD_HIJACK_BOOT_MODE_FILE),)
-LOCAL_CFLAGS += -DBOOT_MODE_FILE=\"$(BOARD_HIJACK_BOOT_MODE_FILE)\"
-endif
-
 ifneq ($(BOARD_HIJACK_RECOVERY_MODE_FILE),)
 LOCAL_CFLAGS += -DRECOVERY_MODE_FILE=\"$(BOARD_HIJACK_RECOVERY_MODE_FILE)\"
 endif
 
 include $(BUILD_EXECUTABLE)
-
-define symlink-hijack-files
-ALL_PREBUILT += $$(TARGET_OUT)/bin/$(1)
-$$(TARGET_OUT)/bin/$(1) : $$(TARGET_OUT)/bin/hijack
-	@echo "Symlink: $$@ -> hijack"
-	@mkdir -p $$(dir $$@)
-	@rm -rf $$@
-	$$(hide) ln -sf hijack $$@
-endef
-
-$(foreach exe,$(BOARD_HIJACK_EXECUTABLES),$(eval $(call symlink-hijack-files,$(exe))))
 
 ifeq ($(BOARD_HIJACK_LOG_ENABLE),true)
 include $(CLEAR_VARS)
@@ -82,4 +63,4 @@ LOCAL_SRC_FILES := $(LOCAL_MODULE)
 include $(BUILD_PREBUILT)
 endif
 
-endif
+endif # BOARD_HIJACK_ENABLE=true
