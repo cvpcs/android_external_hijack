@@ -1,7 +1,6 @@
 LOCAL_PATH := $(call my-dir)
 
-# we compile hijack if we have hijacked executables
-ifeq ($(TARGET_BOOTLOADER_BOARD_NAME),droid2)
+# we compile hijack
 ifeq ($(BOARD_HIJACK_ENABLE),true)
 
 include $(CLEAR_VARS)
@@ -14,25 +13,45 @@ LOCAL_STATIC_LIBRARIES := \
 	libm \
 	libcutils \
 	libc
-LOCAL_CFLAGS += \
-	-DUPDATE_BINARY=\"/preinstall/recovery/update-binary\" \
-	-DBOOT_UPDATE_ZIP=\"/system/etc/droid2-boot.zip\" \
-	-DRECOVERY_UPDATE_ZIP=\"/preinstall/recovery/recovery.zip\"
 LOCAL_FORCE_STATIC_EXECUTABLE := true
+
+ifneq ($(BOARD_HIJACK_UPDATE_BINARY),)
+LOCAL_CFLAGS += -DUPDATE_BINARY=\"$(BOARD_HIJACK_UPDATE_BINARY)\"
+endif
+
+ifneq ($(BOARD_HIJACK_BOOT_UPDATE_ZIP),)
+LOCAL_CFLAGS += -DBOOT_UPDATE_ZIP=\"$(BOARD_HIJACK_BOOT_UPDATE_ZIP)\"
+endif
+
+ifneq ($(BOARD_HIJACK_RECOVERY_UPDATE_ZIP),)
+LOCAL_CFLAGS += -DRECOVERY_UPDATE_ZIP=\"$(BOARD_HIJACK_RECOVERY_UPDATE_ZIP)\"
+endif
 
 ifeq ($(BOARD_HIJACK_LOG_ENABLE),true)
 LOCAL_CFLAGS += -DLOG_ENABLE
 endif
 
-include $(BUILD_EXECUTABLE)
+ifneq ($(BOARD_HIJACK_LOG_DEVICE),)
+LOCAL_CFLAGS += -DLOG_DEVICE=\"$(BOARD_HIJACK_LOG_DEVICE)\"
+endif
 
-# this is kind of ugly, but whatever...
-ALL_PREBUILT += $(TARGET_OUT)/bin/logwrapper
-$(TARGET_OUT)/bin/logwrapper : $(TARGET_OUT)/bin/hijack
-	@echo "Symlink: logwrapper -> hijack"
-	@mkdir -p $(dir $@)
-	@rm -rf $@
-	$(hide) ln -sf hijack $@
+ifneq ($(BOARD_HIJACK_LOG_MOUNT),)
+LOCAL_CFLAGS += -DLOG_MOUNT=\"$(BOARD_HIJACK_LOG_MOUNT)\"
+endif
+
+ifneq ($(BOARD_HIJACK_LOG_FILE),)
+LOCAL_CFLAGS += -DLOG_FILE=\"$(BOARD_HIJACK_LOG_FILE)\"
+endif
+
+ifneq ($(BOARD_HIJACK_LOG_DUMP_BINARY),)
+LOCAL_CFLAGS += -DLOG_DUMP_BINARY=\"$(BOARD_HIJACK_LOG_DUMP_BINARY)\"
+endif
+
+ifneq ($(BOARD_HIJACK_RECOVERY_MODE_FILE),)
+LOCAL_CFLAGS += -DRECOVERY_MODE_FILE=\"$(BOARD_HIJACK_RECOVERY_MODE_FILE)\"
+endif
+
+include $(BUILD_EXECUTABLE)
 
 ifeq ($(BOARD_HIJACK_LOG_ENABLE),true)
 include $(CLEAR_VARS)
@@ -45,4 +64,3 @@ include $(BUILD_PREBUILT)
 endif
 
 endif # BOARD_HIJACK_ENABLE=true
-endif # TARGET_BOOTLAODER_BOARD_NAME=droid2
